@@ -49,5 +49,3 @@ streamlit run main.py
 ```bash
 (http://localhost:8501)
 ```
-git clone https://github.com/stevemichael15/smartchat-ai.git
-cd smartchat-ai
