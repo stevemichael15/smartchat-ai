@@ -31,14 +31,19 @@ Built with **Streamlit** and **Hugging Face Transformers**, it scrapes and proce
 
 ### 1️⃣ Clone the repository
 ```bash
+git clone https://github.com/stevemichael15/smartchat-ai.git
+cd smartchat-ai
 
 ### 2️⃣ Install dependencies
+```bash
 pip install -r requirements.txt
 
 ### 3️⃣ Run the app
+```bash
 streamlit run main.py
 
 ### 4️⃣ Open in browser
+```bash
 (http://localhost:8501)
 
 git clone https://github.com/stevemichael15/smartchat-ai.git
