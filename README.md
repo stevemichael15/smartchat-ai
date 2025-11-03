@@ -1,17 +1,18 @@
-# 💬 SmartChat AI
+# 💬 SmartChat AI  
 
-**SmartChat AI** is a conversational web app that answers your questions intelligently on any topic you choose — just like ChatGPT.  
-Built with **Streamlit** and **Hugging Face Transformers**, it scrapes and processes relevant knowledge dynamically, giving you contextual, accurate responses in real-time.
+**SmartChat AI** is an intelligent conversational web app that provides accurate, real-time answers to user queries on any topic — powered by **Hugging Face Transformers** and **Streamlit**.  
+The app dynamically retrieves and processes relevant content from the web to generate **context-aware, fact-based responses** with a smooth, chat-style interface.
 
 ---
 
-## 🚀 Features
+## 🚀 Key Features
 
-- 🤖 **AI-Powered Responses** — Uses a transformer-based QA model (`longformer-base-4096`) fine-tuned on SQuAD for context-aware answers.  
-- 🌐 **Automatic Knowledge Retrieval** — Fetches relevant, up-to-date content from trusted sources like Wikipedia.  
-- 💡 **Interactive Chat Interface** — A sleek, modern chat UI built with Streamlit, optimized for readability and engagement.  
-- ⚡ **Efficient Long Context Handling** — Automatically splits long content into smaller chunks and analyzes them intelligently.  
-- 🧠 **Fallback Handling** — If relevant content isn’t found, the bot gracefully responds with “Sorry, I am unaware of this topic.”
+- 🧠 **Transformer-Based QA Model** — Uses a fine-tuned model (`deepset/roberta-base-squad2`) from Hugging Face for context-aware question answering.  
+- 🌐 **Dynamic Knowledge Retrieval** — Automatically scrapes relevant text from trusted sources like **Wikipedia** using BeautifulSoup and Requests.  
+- 💬 **Chat-Style Interface** — Interactive, user-friendly Streamlit chat UI that maintains smooth conversation flow.  
+- 🧩 **Context Chunking** — Handles large text by splitting it into smaller sections and finding the best context for each question.  
+- ⚡ **Performance Optimized** — Uses caching and efficient token handling for faster responses.  
+- 🚨 **Graceful Fallbacks** — Returns “Sorry, I am unaware of this topic.” when no relevant content is found.  
 
 ---
 
@@ -20,13 +21,12 @@ Built with **Streamlit** and **Hugging Face Transformers**, it scrapes and proce
 | Component | Description |
 |------------|-------------|
 | **Frontend/UI** | Streamlit |
-| **Model** | Longformer (`valhalla/longformer-base-4096-finetuned-squadv1`) |
-| **Scraping** | BeautifulSoup + Requests |
+| **Model** | `deepset/roberta-base-squad2` (Hugging Face Transformers) |
+| **Web Scraping** | BeautifulSoup4 + Requests |
 | **Language** | Python 3.x |
-| **Deployment** | Streamlit Community Cloud / Lightning AI |
+| **Deployment** | Streamlit Community Cloud / Localhost |
 
 ---
-
 ## ⚙️ Installation & Setup
 
 ### 1️⃣ Clone the repository
