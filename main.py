@@ -9,7 +9,7 @@ import re
 st.set_page_config(page_title="SmartChat AI", page_icon="💬", layout="centered")
 
 #--------------------------------------------------------------
-# Styling (clean chat-style UI)
+# Styling
 st.markdown("""
     <style>
     .stApp {
@@ -46,35 +46,48 @@ def fetch_topic_context(topic):
         headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"}
         response = requests.get(f"https://en.wikipedia.org/wiki/{topic.replace(' ', '_')}", headers=headers, timeout=10)
 
-        # Handle failed responses
         if response.status_code != 200:
-            return None
+            return None, None
 
         soup = BeautifulSoup(response.text, 'html.parser')
 
-        # Extract text from multiple HTML tags
-        elements = soup.find_all(['p', 'li', 'div', 'span'])
-        text = ' '.join([el.get_text(separator=' ', strip=True) for el in elements])
+        content_div = soup.find("div", {"id": "mw-content-text"})
+        if not content_div:
+            return None, None
 
-        # Clean up messy content
-        text = re.sub(r'\[[0-9]+\]', '', text)  # remove citations like [1]
-        text = re.sub(r'\s+', ' ', text)        # remove multiple spaces
-        text = re.sub(r'\([^)]*\)', '', text)   # remove parentheses content (optional)
-        text = text.strip()
+        paragraphs = content_div.find_all('p')
+        all_text = ' '.join([p.get_text(separator=' ', strip=True) for p in paragraphs])
 
-        # If nothing meaningful is fetched
-        if len(text) < 3000:
-            return None
+        # Clean text
+        all_text = re.sub(r'\[[0-9]+\]', '', all_text)
+        all_text = re.sub(r'\s+', ' ', all_text)
+        all_text = re.sub(r'\([^)]*\)', '', all_text)
+        all_text = all_text.strip()
 
-        # Cap maximum context for performance
-        return text[:25000]
+        # ✅ Extract the first meaningful paragraph for "Did You Know"
+        intro_para = ""
+        for p in paragraphs:
+            clean_p = p.get_text(strip=True)
+            if len(clean_p) > 50:
+                intro_para = clean_p
+                break
+
+        # ✅ Make it short & concise (first 2–3 sentences only)
+        if intro_para:
+            sentences = re.split(r'(?<=[.!?]) +', intro_para)
+            intro_para = ' '.join(sentences[:1]).strip()
+
+        if len(all_text) < 1000:
+            return None, None
+
+        return all_text[:25000], intro_para
 
     except Exception:
-        return None
+        return None, None
 
 #--------------------------------------------------------------
 # Function to split long text into smaller chunks
-def split_text(text, max_chunk_length=15000):
+def split_text(text, max_chunk_length=16000):
     sentences = text.split('. ')
     chunks, current_chunk = [], ""
     for sentence in sentences:
@@ -88,16 +101,16 @@ def split_text(text, max_chunk_length=15000):
     return chunks
 
 #--------------------------------------------------------------
-# Load QA Model
+# Load Models
 @st.cache_resource
-def load_model():
+def load_qa_model():
     return pipeline(
         "question-answering",
         model="valhalla/longformer-base-4096-finetuned-squadv1",
         tokenizer="valhalla/longformer-base-4096-finetuned-squadv1"
     )
 
-qa_pipeline = load_model()
+qa_pipeline = load_qa_model()
 
 #--------------------------------------------------------------
 # Function for long context QA
@@ -114,21 +127,32 @@ def long_context_qa(question, context):
         return "Sorry, I’m unaware of this topic."
 
 #--------------------------------------------------------------
-# Chatbot Interface
+# SmartChat Interface
 st.title("💬 SmartChat AI")
 st.caption("Your intelligent assistant — ask anything!")
 
 # Sidebar Input
 topic = st.text_input("Enter a topic to discuss:", placeholder="e.g. Artificial Intelligence")
 
+if st.button("🔄 Change Topic"):
+    st.session_state.clear()
+    st.rerun()
+
 if topic:
     with st.spinner("Gathering knowledge..."):
-        context = fetch_topic_context(topic)
+        context, intro = fetch_topic_context(topic)
 
     if not context:
         st.error("Sorry, I’m unaware of this topic. Try another one!")
     else:
-        st.success(f"Start chatting below 👇")
+        # ✅ Short, clean "Did You Know" section
+        st.subheader("💡 Did You Know?")
+        if intro:
+            st.markdown(f"✨ **{intro}**")
+        else:
+            st.info("Couldn't find a short intro for this topic.")
+
+        st.success("Start chatting below 👇")
 
         if "chat_history" not in st.session_state:
             st.session_state.chat_history = []
